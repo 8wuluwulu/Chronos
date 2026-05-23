@@ -1,0 +1,1726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chronos — Intelligent Calendar Orchestration</title>
+  <meta name="description" content="Chronos AI coordinates schedules, safeguards deep focus hours, and aligns teams without scheduling friction. Effortless productivity starts here.">
+  
+  <!-- Premium Google Fonts Pairing (Outfit for Display, Plus Jakarta Sans for Body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* ----------------------------------------------------
+       1. DESIGN SYSTEM & CSS VARIABLES
+       ---------------------------------------------------- */
+    :root {
+      --bg-body: #09090b;       /* Premium Zinc-950 Off-Black */
+      --bg-card: #121215;       /* Refined dark card surface */
+      --bg-card-hover: #17171c; /* Elevated hover card surface */
+      --border-color: rgba(255, 255, 255, 0.06);
+      --border-color-hover: rgba(255, 255, 255, 0.12);
+      
+      --text-primary: #f4f4f5;
+      --text-secondary: #a1a1aa;
+      --text-tertiary: #71717a;
+      
+      /* Accent Palette - Desaturated for Premium Vibe (< 80% saturation) */
+      --accent-blue: #3b82f6;          /* Clean Electric Blue */
+      --accent-blue-rgb: 59, 130, 246;
+      --accent-emerald: #10b981;       /* Focus/Success Green */
+      --accent-emerald-rgb: 16, 185, 129;
+      --accent-rose: #f43f5e;          /* Conflict Red */
+      --accent-rose-rgb: 244, 63, 94;
+      
+      /* Typography */
+      --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif;
+      --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      /* Motion / Transitions */
+      --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
+      --transition-smooth: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      --transition-fast: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      
+      /* Glassmorphism Specs */
+      --glass-bg: rgba(18, 18, 21, 0.7);
+      --glass-blur: blur(12px);
+    }
+
+    /* ----------------------------------------------------
+       2. GLOBAL RESETS & BASE STYLES
+       ---------------------------------------------------- */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 80px;
+    }
+
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Global Grain / Noise Overlay (Hardware Accelerated, Scroll-friendly) */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0.02;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    /* Typography Defaults */
+    h1, h2, h3, h4 {
+      font-family: var(--font-heading);
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+    }
+
+    p {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      font-weight: 400;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+      transition: var(--transition-fast);
+    }
+
+    /* Container Utility */
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+
+    /* ----------------------------------------------------
+       3. REUSABLE STYLES (BUTTONS, CARDS, BADGES)
+       ---------------------------------------------------- */
+    
+    /* Buttons with tactile feedback */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-heading);
+      font-weight: 500;
+      font-size: 0.95rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn--primary {
+      background-color: var(--text-primary);
+      color: var(--bg-body);
+      border: 1px solid var(--text-primary);
+    }
+
+    .btn--primary:hover {
+      background-color: transparent;
+      color: var(--text-primary);
+    }
+
+    .btn--secondary {
+      background-color: rgba(255, 255, 255, 0.04);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn--secondary:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+      border-color: var(--border-color-hover);
+    }
+
+    .btn--accent {
+      background-color: var(--accent-blue);
+      color: #ffffff;
+      border: 1px solid var(--accent-blue);
+      box-shadow: 0 4px 20px rgba(59, 130, 246, 0.15);
+    }
+
+    .btn--accent:hover {
+      background-color: transparent;
+      color: var(--accent-blue);
+      box-shadow: 0 4px 20px rgba(59, 130, 246, 0);
+    }
+
+    /* Spotlight Card Layout (Refraction Borders & Glassmorphism) */
+    .interactive-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 2.5rem;
+      transition: var(--transition-smooth);
+      position: relative;
+      overflow: hidden;
+      /* CSS inner shadow simulating physical edge refraction */
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    /* Glow light trackable via mouse cursor position variables */
+    .interactive-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s var(--ease-premium);
+      background: radial-gradient(
+        600px circle at var(--mouse-x, 0) var(--mouse-y, 0),
+        rgba(255, 255, 255, 0.04),
+        transparent 40%
+      );
+    }
+
+    .interactive-card:hover::before {
+      opacity: 1;
+    }
+
+    .interactive-card:hover {
+      border-color: var(--border-color-hover);
+      transform: translateY(-2px);
+    }
+
+    /* Dynamic Pill Badge */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      font-family: var(--font-heading);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background-color: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      margin-bottom: 1.5rem;
+    }
+
+    .badge--accent {
+      background-color: var(--accent-muted);
+      border-color: rgba(59, 130, 246, 0.2);
+      color: var(--accent-blue);
+    }
+
+    /* ----------------------------------------------------
+       4. SCROLL REVEAL STYLES (Performance Guardrails)
+       ---------------------------------------------------- */
+    .scroll-reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      will-change: opacity, transform;
+      transition: opacity 0.8s var(--ease-premium), transform 0.8s var(--ease-premium);
+    }
+
+    .scroll-reveal.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ----------------------------------------------------
+       5. STICKY HEADER SECTION
+       ---------------------------------------------------- */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      z-index: 1000;
+      background-color: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      transition: var(--transition-smooth);
+    }
+
+    .header__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 1.4rem;
+      letter-spacing: -0.03em;
+    }
+
+    .logo svg {
+      color: var(--accent-blue);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .nav__link {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .nav__link:hover {
+      color: var(--text-primary);
+    }
+
+    .header__cta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* Menu Toggle for Mobile responsiveness */
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+
+    /* ----------------------------------------------------
+       6. HERO SECTION (Asymmetric, Conversion Focused)
+       ---------------------------------------------------- */
+    .hero {
+      padding-top: 180px;
+      padding-bottom: 120px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Glowing decorative backdrop sphere */
+    .hero::after {
+      content: "";
+      position: absolute;
+      top: 10%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, rgba(0, 0, 0, 0) 70%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .hero__grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .hero__content {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .hero__title {
+      font-size: 3.75rem;
+      font-weight: 800;
+      line-height: 1.05;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.04em;
+    }
+
+    .hero__title span {
+      display: block;
+      color: var(--text-secondary);
+      font-weight: 400;
+    }
+
+    .hero__description {
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      margin-bottom: 2.5rem;
+      max-width: 52ch;
+    }
+
+    .hero__ctas {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    .hero__stats {
+      display: flex;
+      gap: 3rem;
+      border-top: 1px solid var(--border-color);
+      padding-top: 2rem;
+      width: 100%;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-item__value {
+      font-family: var(--font-mono);
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .stat-item__label {
+      font-size: 0.8rem;
+      color: var(--text-tertiary);
+    }
+
+    /* Asymmetric Visual Asset for Hero */
+    .hero__visual {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hero-calendar {
+      width: 100%;
+      max-width: 380px;
+      aspect-ratio: 1 / 1.1;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 1.5rem;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                  0 20px 40px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .hero-calendar__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .hero-calendar__title {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .hero-calendar__grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      flex-grow: 1;
+      position: relative;
+    }
+
+    .calendar-row {
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .calendar-row__time {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+    }
+
+    .calendar-row__line {
+      height: 1px;
+      background-color: var(--border-color);
+      position: relative;
+    }
+
+    .calendar-event {
+      position: absolute;
+      left: 70px;
+      right: 0;
+      background-color: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-left: 3px solid var(--text-tertiary);
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      pointer-events: none;
+    }
+
+    .calendar-event--busy {
+      border-left-color: var(--accent-rose);
+      background-color: rgba(244, 63, 94, 0.03);
+    }
+
+    .calendar-event--auto {
+      border-left-color: var(--accent-blue);
+      background-color: rgba(59, 130, 246, 0.08);
+      color: var(--text-primary);
+      animation: floatIn 2.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatIn {
+      0% {
+        transform: translateY(0) scale(0.98);
+        box-shadow: 0 4px 10px rgba(59, 130, 246, 0.05);
+      }
+      100% {
+        transform: translateY(-4px) scale(1.01);
+        box-shadow: 0 12px 24px rgba(59, 130, 246, 0.15);
+      }
+    }
+
+    /* ----------------------------------------------------
+       7. PROBLEM & SOLUTION SECTION (Asymmetric Bento Grid)
+       ---------------------------------------------------- */
+    .bento-section {
+      padding-top: 100px;
+      padding-bottom: 100px;
+    }
+
+    .section-header {
+      margin-bottom: 4rem;
+      max-width: 600px;
+    }
+
+    .section-header__title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .section-header__subtitle {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+    }
+
+    .bento-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 2rem;
+    }
+
+    .bento-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .bento-card__title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .bento-card__desc {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+    }
+
+    /* Inside the Chaos Bento Card */
+    .chaos-visual {
+      background: rgba(244, 63, 94, 0.01);
+      border: 1px dashed rgba(244, 63, 94, 0.15);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .chaos-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+    }
+
+    .chaos-item svg {
+      color: var(--accent-rose);
+      flex-shrink: 0;
+    }
+
+    /* Inside the Order Bento Card */
+    .order-visual {
+      background: rgba(16, 185, 129, 0.01);
+      border: 1px solid rgba(16, 185, 129, 0.15);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      position: relative;
+    }
+
+    .order-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+    }
+
+    .order-item__left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .order-item svg {
+      color: var(--accent-emerald);
+    }
+
+    .order-item__status {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--accent-emerald);
+      background-color: rgba(16, 185, 129, 0.1);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    /* ----------------------------------------------------
+       8. KEY FEATURES SECTION (Asymmetric Masonry Design)
+       ---------------------------------------------------- */
+    .features-section {
+      padding-top: 100px;
+      padding-bottom: 100px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .features-grid--reverse {
+      grid-template-columns: 0.9fr 1.1fr;
+    }
+
+    .feature-card {
+      min-height: 320px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .feature-card__icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-blue);
+      margin-bottom: 2rem;
+      border: 1px solid var(--border-color);
+    }
+
+    .feature-card__content {
+      margin-top: auto;
+    }
+
+    .feature-card__title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    .feature-card__description {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    /* ----------------------------------------------------
+       9. INTERACTIVE DEMO (The "Wow" Factor)
+       ---------------------------------------------------- */
+    .demo-section {
+      padding-top: 100px;
+      padding-bottom: 100px;
+    }
+
+    .demo-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 3rem;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 3rem;
+      position: relative;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                  0 24px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .demo-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .demo-info__title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .demo-info__desc {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+    }
+
+    /* The Mock Calendar Board */
+    .mock-calendar {
+      background: var(--bg-body);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .mock-calendar__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1rem;
+    }
+
+    .mock-calendar__title {
+      font-family: var(--font-heading);
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .mock-calendar__timeline {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .user-row {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .user-avatar-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--text-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--bg-body);
+      border: 1px solid var(--border-color);
+    }
+
+    .user-name {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    /* Time Track Blocks container */
+    .time-blocks {
+      height: 38px;
+      background: rgba(255, 255, 255, 0.01);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .time-block {
+      position: absolute;
+      height: 70%;
+      top: 15%;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      font-size: 0.7rem;
+      display: flex;
+      align-items: center;
+      padding: 0 0.5rem;
+      color: var(--text-tertiary);
+    }
+
+    .time-block--busy {
+      background: rgba(244, 63, 94, 0.05);
+      border-left: 2px solid var(--accent-rose);
+      color: var(--accent-rose);
+    }
+
+    /* Dynamic scan grid highlight */
+    .scan-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 80px;
+      width: 2px;
+      background: var(--accent-blue);
+      box-shadow: 0 0 10px var(--accent-blue);
+      z-index: 10;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Target auto-placed slot */
+    .target-slot {
+      position: absolute;
+      height: 70%;
+      top: 15%;
+      left: 55%;
+      width: 25%;
+      border-radius: 6px;
+      border: 1px dashed var(--accent-blue);
+      background: rgba(59, 130, 246, 0.03);
+      opacity: 0;
+      transform: scale(0.95);
+      transition: all 0.6s var(--ease-premium);
+      display: flex;
+      align-items: center;
+      padding: 0 0.75rem;
+      font-size: 0.7rem;
+      color: var(--accent-blue);
+      font-weight: 500;
+    }
+
+    .target-slot.active {
+      opacity: 1;
+      transform: scale(1);
+      background: rgba(59, 130, 246, 0.12);
+      border-style: solid;
+    }
+
+    /* Dynamic feedback toast inside calendar container */
+    .demo-toast {
+      position: absolute;
+      bottom: 2rem;
+      right: 2rem;
+      background: rgba(18, 18, 21, 0.95);
+      border: 1px solid var(--accent-emerald);
+      border-radius: 12px;
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.8rem;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.5s var(--ease-premium);
+      pointer-events: none;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      z-index: 20;
+    }
+
+    .demo-toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* ----------------------------------------------------
+       10. TESTIMONIALS SECTION (Asymmetric Layout)
+       ---------------------------------------------------- */
+    .testimonials-section {
+      padding-top: 100px;
+      padding-bottom: 100px;
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 3rem;
+      align-items: flex-start;
+    }
+
+    .testimonials-col {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .testimonial-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 2rem;
+      position: relative;
+    }
+
+    .testimonial-card__quote {
+      font-size: 1.05rem;
+      color: var(--text-primary);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+
+    .testimonial-card__author {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .author-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2e2e38 0%, #1c1c24 100%);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+    }
+
+    .author-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .author-details__name {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .author-details__role {
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+    }
+
+    /* ----------------------------------------------------
+       11. FINAL CTA SECTION (Conversion Acceleration)
+       ---------------------------------------------------- */
+    .final-cta {
+      padding-top: 120px;
+      padding-bottom: 120px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Background glow */
+    .final-cta::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.06) 0%, rgba(0, 0, 0, 0) 70%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .final-cta__wrapper {
+      background: linear-gradient(180deg, rgba(18, 18, 21, 0.6) 0%, rgba(9, 9, 11, 0.9) 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 32px;
+      padding: 5rem 2rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .final-cta__title {
+      font-size: 3.5rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.04em;
+    }
+
+    .final-cta__desc {
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      max-width: 50ch;
+      margin-bottom: 2.5rem;
+    }
+
+    /* ----------------------------------------------------
+       12. FOOTER SECTION
+       ---------------------------------------------------- */
+    .footer {
+      border-top: 1px solid var(--border-color);
+      padding-top: 4rem;
+      padding-bottom: 4rem;
+      background-color: #050507;
+    }
+
+    .footer__grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr;
+      gap: 4rem;
+      margin-bottom: 4rem;
+    }
+
+    .footer__desc {
+      font-size: 0.9rem;
+      color: var(--text-tertiary);
+      max-width: 32ch;
+      margin-top: 1rem;
+    }
+
+    .footer__links-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .footer__links-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-primary);
+    }
+
+    .footer__link {
+      font-size: 0.85rem;
+      color: var(--text-tertiary);
+    }
+
+    .footer__link:hover {
+      color: var(--text-primary);
+    }
+
+    .footer__bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border-color);
+      padding-top: 2rem;
+      font-size: 0.8rem;
+      color: var(--text-tertiary);
+    }
+
+    /* ----------------------------------------------------
+       13. RESPONSIVE BREAKPOINTS (Mobile Override Guidelines)
+       ---------------------------------------------------- */
+    @media (max-width: 1024px) {
+      .hero__grid {
+        gap: 3rem;
+      }
+      .hero__title {
+        font-size: 3rem;
+      }
+      .demo-container {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+        padding: 2rem;
+      }
+      .testimonials-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        height: 70px;
+      }
+
+      /* Mobile Navigation Overlay */
+      .nav {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--bg-body);
+        flex-direction: column;
+        justify-content: center;
+        gap: 2.5rem;
+        padding: 2rem;
+        z-index: 999;
+        transform: translateY(-100%);
+        opacity: 0;
+        pointer-events: none;
+        transition: var(--transition-smooth);
+      }
+
+      .nav.is-active {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .nav-toggle {
+        display: block;
+        z-index: 1001;
+      }
+
+      .header__cta .btn {
+        display: none; /* Hide primary CTA inside header on micro mobile screens to avoid wrap */
+      }
+
+      .hero {
+        padding-top: 120px;
+        padding-bottom: 60px;
+      }
+
+      .hero__grid {
+        grid-template-columns: 1fr;
+        gap: 4rem;
+      }
+
+      .hero__title {
+        font-size: 2.5rem;
+      }
+
+      .hero__ctas {
+        width: 100%;
+        flex-direction: column;
+      }
+
+      .hero__ctas .btn {
+        width: 100%;
+      }
+
+      .hero__stats {
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .bento-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .features-grid, .features-grid--reverse {
+        grid-template-columns: 1fr;
+      }
+
+      .footer__grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+      }
+
+      .final-cta__title {
+        font-size: 2.25rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky Header -->
+  <header class="header">
+    <div class="container header__inner">
+      <a href="#" class="logo" aria-label="Chronos Home">
+        <!-- Minimal Clock dial SVG -->
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M12 6v6l4 2"></path>
+        </svg>
+        Chronos
+      </a>
+      
+      <nav class="nav" id="main-nav" aria-label="Main Navigation">
+        <a href="#problem-solution" class="nav__link">Overview</a>
+        <a href="#features" class="nav__link">Features</a>
+        <a href="#demo" class="nav__link">Interactive Demo</a>
+        <a href="#testimonials" class="nav__link">Customers</a>
+      </nav>
+
+      <div class="header__cta">
+        <a href="#cta-banner" class="btn btn--secondary btn--small">Log In</a>
+        <a href="#cta-banner" class="btn btn--primary btn--small">Get Started — Free</a>
+      </div>
+
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="main-nav">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    
+    <!-- Hero Section -->
+    <section class="hero scroll-reveal">
+      <div class="container hero__grid">
+        <div class="hero__content">
+          <span class="badge badge--accent">Autonomous Scheduling</span>
+          <h1 class="hero__title">
+            Your calendar.
+            <span>on autopilot.</span>
+          </h1>
+          <p class="hero__description">
+            Chronos coordinates your timeline, shields focus hours, and merges team availability without booking links or back-and-forth emails.
+          </p>
+          <div class="hero__ctas">
+            <a href="#cta-banner" class="btn btn--accent">Try Chronos AI Free</a>
+            <a href="#demo" class="btn btn--secondary">Watch Interactive Demo</a>
+          </div>
+          <div class="hero__stats">
+            <div class="stat-item">
+              <span class="stat-item__value">2.4h</span>
+              <span class="stat-item__label">Daily time saved per user</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-item__value">98%</span>
+              <span class="stat-item__label">Meeting friction eliminated</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero__visual">
+          <div class="hero-calendar">
+            <div class="hero-calendar__header">
+              <span class="hero-calendar__title">Aria's Timeline</span>
+              <span class="stat-item__label" style="font-family: var(--font-mono)">UTC-5</span>
+            </div>
+            <div class="hero-calendar__grid">
+              <div class="calendar-row">
+                <span class="calendar-row__time">09:00</span>
+                <div class="calendar-row__line"></div>
+              </div>
+              <div class="calendar-row">
+                <span class="calendar-row__time">10:00</span>
+                <div class="calendar-row__line">
+                  <div class="calendar-event calendar-event--busy" style="top: 0px; height: 35px;">
+                    Standup
+                  </div>
+                </div>
+              </div>
+              <div class="calendar-row">
+                <span class="calendar-row__time">11:00</span>
+                <div class="calendar-row__line">
+                  <div class="calendar-event calendar-event--auto" style="top: -10px; height: 60px;">
+                    ⚡ Auto-scheduled: Sync with PM
+                  </div>
+                </div>
+              </div>
+              <div class="calendar-row">
+                <span class="calendar-row__time">12:00</span>
+                <div class="calendar-row__line"></div>
+              </div>
+              <div class="calendar-row">
+                <span class="calendar-row__time">13:00</span>
+                <div class="calendar-row__line">
+                  <div class="calendar-event calendar-event--busy" style="top: 0px; height: 45px;">
+                    Client Architecture Review
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bento Grid Section: Problem vs Solution -->
+    <section class="bento-section scroll-reveal" id="problem-solution">
+      <div class="container">
+        <div class="section-header">
+          <span class="badge">The Friction Gap</span>
+          <h2 class="section-header__title">Say goodbye to scheduling overhead</h2>
+          <p class="section-header__subtitle">
+            Manual booking links put the work on your clients. Chronos solves coordination at the infrastructure level.
+          </p>
+        </div>
+
+        <div class="bento-grid">
+          
+          <!-- Chaos Bento Card -->
+          <div class="interactive-card bento-card">
+            <div>
+              <span class="badge" style="color: var(--accent-rose); background: rgba(244,63,94,0.06); border-color: rgba(244,63,94,0.1)">The Scheduling Tax</span>
+              <div class="chaos-visual">
+                <div class="chaos-item">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                  <span>"Which timezone are you currently in?"</span>
+                </div>
+                <div class="chaos-item">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                  <span>Link conflicts: Double booked Client Review</span>
+                </div>
+                <div class="chaos-item">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                  <span>Fragmented 15-minute gap layouts</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h3 class="bento-card__title">Chaotic Fragmentation</h3>
+              <p class="bento-card__desc">Constantly sending calendars links, manually checking conflicting zones, and fracturing focus blocks.</p>
+            </div>
+          </div>
+
+          <!-- Order Bento Card -->
+          <div class="interactive-card bento-card">
+            <div>
+              <span class="badge" style="color: var(--accent-emerald); background: rgba(16,185,129,0.06); border-color: rgba(16,185,129,0.1)">The Chronos Flow</span>
+              <div class="order-visual">
+                <div class="order-item">
+                  <div class="order-item__left">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <span>Timezones aligned autonomously</span>
+                  </div>
+                  <span class="order-item__status">Resolved</span>
+                </div>
+                <div class="order-item">
+                  <div class="order-item__left">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <span>Shielded focus blocks secured</span>
+                  </div>
+                  <span class="order-item__status">Guarded</span>
+                </div>
+                <div class="order-item">
+                  <div class="order-item__left">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <span>Auto-optimized team coordination</span>
+                  </div>
+                  <span class="order-item__status">Aligned</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h3 class="bento-card__title">Harmonized Productivity</h3>
+              <p class="bento-card__desc">AI agent engine operates in the background, making scheduling invisible and giving you your day back.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Key Features Section (Asymmetric Grid Layout) -->
+    <section class="features-section scroll-reveal" id="features">
+      <div class="container">
+        
+        <!-- Row 1: Asymmetric split left-heavy -->
+        <div class="features-grid">
+          <div class="interactive-card feature-card">
+            <div class="feature-card__icon">
+              <!-- Smart scheduler SVG -->
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+                <path d="M9 16l2 2 4-4"></path>
+              </svg>
+            </div>
+            <div class="feature-card__content">
+              <h3 class="feature-card__title">AI Smart Scheduling</h3>
+              <p class="feature-card__description">
+                Our scheduler reads contextual availability, weights meeting priorities, and negotiates times directly with external calendars without requiring user oversight.
+              </p>
+            </div>
+          </div>
+
+          <div class="interactive-card feature-card">
+            <div class="feature-card__icon">
+              <!-- Focus/Lock Shield SVG -->
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </div>
+            <div class="feature-card__content">
+              <h3 class="feature-card__title">Deep Work Protection</h3>
+              <p class="feature-card__description">
+                Chronos identifies focus patterns, dynamically blocks off blocks of deep work, and auto-declines requests that attempt to segment critical tasks.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: Full width / offset layout -->
+        <div class="features-grid features-grid--reverse">
+          <div class="interactive-card feature-card">
+            <div class="feature-card__icon">
+              <!-- Connections network SVG -->
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <div class="feature-card__content">
+              <h3 class="feature-card__title">Instant Team Sync</h3>
+              <p class="feature-card__description">
+                Scan multiple organizational structures, coordinate across ten calendars at once, and target ideal windows that leave breathing room for everyone.
+              </p>
+            </div>
+          </div>
+
+          <div class="interactive-card feature-card" style="justify-content: center; background: radial-gradient(circle at 100% 0%, rgba(59, 130, 246, 0.08) 0%, transparent 80%);">
+            <div style="text-align: left; padding: 1rem;">
+              <h4 style="font-size: 1.15rem; margin-bottom: 0.5rem; font-family: var(--font-heading)">Ready to optimize your time?</h4>
+              <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem">Join high-performing teams automating coordination.</p>
+              <a href="#cta-banner" class="btn btn--primary btn--small">Start For Free</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Interactive Demo Section (The "Wow" Factor) -->
+    <section class="demo-section scroll-reveal" id="demo">
+      <div class="container">
+        
+        <div class="demo-container">
+          <div class="demo-info">
+            <span class="badge badge--accent">Live Simulation</span>
+            <h2 class="demo-info__title">Invisible Coordination</h2>
+            <p class="demo-info__desc">
+              Watch Chronos resolve team conflicts. Click <strong>Find Optimal Time</strong> to simulate calendar alignment and view slot assignment.
+            </p>
+            <button class="btn btn--accent" id="demo-btn">Find Optimal Time</button>
+          </div>
+
+          <!-- Mock Calendar Workspace -->
+          <div class="mock-calendar">
+            <div class="mock-calendar__header">
+              <span class="mock-calendar__title">Team Workspace Availability</span>
+              <span class="stat-item__label" style="font-family: var(--font-mono)">Timeframe: 10:00 — 16:00</span>
+            </div>
+            
+            <div class="mock-calendar__timeline">
+              <!-- Grid Scan Line -->
+              <div class="scan-line" id="scan-line"></div>
+
+              <!-- User 1 Row -->
+              <div class="user-row">
+                <div class="user-avatar-group">
+                  <div class="user-avatar" style="background-color: #cbd5e1">AV</div>
+                  <span class="user-name">Aria</span>
+                </div>
+                <div class="time-blocks">
+                  <div class="time-block time-block--busy" style="left: 5%; width: 40%;">Standup / Review</div>
+                  <div class="time-block time-block--busy" style="left: 82%; width: 15%;">Daily Wrap</div>
+                </div>
+              </div>
+
+              <!-- User 2 Row -->
+              <div class="user-row">
+                <div class="user-avatar-group">
+                  <div class="user-avatar" style="background-color: #94a3b8">RP</div>
+                  <span class="user-name">Rohan</span>
+                </div>
+                <div class="time-blocks">
+                  <div class="time-block time-block--busy" style="left: 20%; width: 30%;">Refactoring</div>
+                </div>
+              </div>
+
+              <!-- User 3 Row -->
+              <div class="user-row">
+                <div class="user-avatar-group">
+                  <div class="user-avatar" style="background-color: #64748b">KM</div>
+                  <span class="user-name">Kaelen</span>
+                </div>
+                <div class="time-blocks">
+                  <div class="time-block time-block--busy" style="left: 5%; width: 25%;">Product Huddle</div>
+                  <div class="time-block time-block--busy" style="left: 35%; width: 15%;">Sync</div>
+                </div>
+              </div>
+
+              <!-- Target Placeholders that fill with JS -->
+              <div class="target-slot" id="target-slot-1">Sync Slot</div>
+            </div>
+
+            <!-- Toast Success alert -->
+            <div class="demo-toast" id="demo-toast">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-emerald)"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              <div>
+                <strong style="display: block">Optimized Slot Assigned</strong>
+                <span style="color: var(--text-secondary); font-size: 0.75rem">14:00 - 15:30 Confirmed.</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials-section scroll-reveal" id="testimonials">
+      <div class="container">
+        
+        <div class="testimonials-grid">
+          
+          <div style="max-width: 450px;">
+            <span class="badge">Success Metrics</span>
+            <h2 class="section-header__title" style="font-size: 2.25rem;">Engineered for high performers</h2>
+            <p class="section-header__subtitle">
+              Chronos powers calendar orchestration for designers, engineers, and product operators globally.
+            </p>
+          </div>
+
+          <div class="testimonials-col">
+            <!-- Testimonial 1 -->
+            <div class="testimonial-card">
+              <p class="testimonial-card__quote">
+                "Chronos completely eliminated booking page friction. We synced ten partners across three continents instantly, reclaiming hours of dev focus every week."
+              </p>
+              <div class="testimonial-card__author">
+                <div class="author-avatar">MS</div>
+                <div class="author-details">
+                  <span class="author-details__name">Marcus Sterling</span>
+                  <span class="author-details__role">VP of Engineering, Vercel Core</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Testimonial 2 -->
+            <div class="testimonial-card">
+              <p class="testimonial-card__quote">
+                "The focus protection mode changed my work pattern. It automatically shields my calendar from fragmentation, ensuring I have dedicated blocks to write code."
+              </p>
+              <div class="testimonial-card__author">
+                <div class="author-avatar" style="color: var(--accent-emerald)">ER</div>
+                <div class="author-details">
+                  <span class="author-details__name">Elena Rostova</span>
+                  <span class="author-details__role">Senior Systems Architect, Linear</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Final CTA Section (Conversion Accelerator) -->
+    <section class="final-cta scroll-reveal" id="cta-banner">
+      <div class="container">
+        <div class="final-cta__wrapper">
+          <span class="badge badge--accent">Start Reclaiming Your Time</span>
+          <h2 class="final-cta__title">Stop scheduling. Start doing.</h2>
+          <p class="final-cta__desc">
+            Free up 10 hours a week with Chronos AI calendar orchestration. Zero setup friction. Cancel anytime.
+          </p>
+          <button class="btn btn--accent btn--large" style="padding: 1rem 2.5rem; font-size: 1.1rem;">Try Chronos AI Free</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer Section -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div>
+          <a href="#" class="logo" style="font-size: 1.25rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M12 6v6l4 2"></path>
+            </svg>
+            Chronos
+          </a>
+          <p class="footer__desc">
+            Autonomous calendar orchestration designed for super-productive individuals and teams.
+          </p>
+        </div>
+        <div class="footer__links-col">
+          <span class="footer__links-title">Product</span>
+          <a href="#features" class="footer__link">Features</a>
+          <a href="#demo" class="footer__link">Interactive Demo</a>
+          <a href="#" class="footer__link">Security</a>
+        </div>
+        <div class="footer__links-col">
+          <span class="footer__links-title">Company</span>
+          <a href="#" class="footer__link">About</a>
+          <a href="#" class="footer__link">Privacy Policy</a>
+          <a href="#" class="footer__link">Terms of Service</a>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>&copy; 2026 Chronos Technologies Inc. All rights reserved.</span>
+        <span>Crafted for frictionless coordination.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ----------------------------------------------------
+       14. JAVASCRIPT: INTERACTIVE CONTROLLER
+       ---------------------------------------------------- -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      
+      // 1. MOBILE MENU TOGGLE
+      const navToggle = document.getElementById('nav-toggle');
+      const mainNav = document.getElementById('main-nav');
+      
+      if (navToggle && mainNav) {
+        navToggle.addEventListener('click', () => {
+          const isActive = mainNav.classList.toggle('is-active');
+          navToggle.setAttribute('aria-expanded', isActive);
+          
+          // Switch between hamburger and close icons
+          navToggle.innerHTML = isActive 
+            ? `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`
+            : `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>`;
+        });
+
+        // Close menu when clicking navigation links
+        mainNav.querySelectorAll('.nav__link').forEach(link => {
+          link.addEventListener('click', () => {
+            mainNav.classList.remove('is-active');
+            navToggle.setAttribute('aria-expanded', false);
+            navToggle.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>`;
+          });
+        });
+      }
+
+      // 2. HIGH-PERFORMANCE INTERSECTION OBSERVER FOR SCROLL REVEAL
+      const revealItems = document.querySelectorAll('.scroll-reveal');
+      const revealObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('revealed');
+            observer.unobserve(entry.target); // Unobserve once animated to limit paint overhead
+          }
+        });
+      }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px' // Trigger slightly before element enters viewport
+      });
+
+      revealItems.forEach(item => revealObserver.observe(item));
+
+      // 3. MOUSE TRACKING SPOTLIGHT CARD EFFECT
+      const cards = document.querySelectorAll('.interactive-card');
+      cards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          card.style.setProperty('--mouse-x', `${x}px`);
+          card.style.setProperty('--mouse-y', `${y}px`);
+        });
+      });
+
+      // 4. INTERACTIVE CALENDAR SIMULATION (THE "WOW" FACTOR)
+      const demoBtn = document.getElementById('demo-btn');
+      const scanLine = document.getElementById('scan-line');
+      const targetSlot = document.getElementById('target-slot-1');
+      const demoToast = document.getElementById('demo-toast');
+      
+      let isAnimating = false;
+
+      if (demoBtn && scanLine && targetSlot && demoToast) {
+        demoBtn.addEventListener('click', () => {
+          if (isAnimating) return;
+          isAnimating = true;
+          
+          // Disable button during execution
+          demoBtn.disabled = true;
+          demoBtn.textContent = 'Scanning calendars...';
+          
+          // Reset states if previously run
+          targetSlot.classList.remove('active');
+          demoToast.classList.remove('show');
+          scanLine.style.opacity = '1';
+          scanLine.style.left = '80px';
+          
+          // Step 1: Scan across the day grid
+          setTimeout(() => {
+            scanLine.style.transition = 'left 1.8s cubic-bezier(0.4, 0, 0.2, 1)';
+            scanLine.style.left = '420px'; // Sweeps to the end of the day columns
+          }, 50);
+
+          // Step 2: Highlight optimized slot and dim scanline
+          setTimeout(() => {
+            scanLine.style.opacity = '0';
+            targetSlot.classList.add('active');
+            
+            // Trigger feedback toast
+            demoToast.classList.add('show');
+          }, 1900);
+
+          // Step 3: Animation complete, reset button text
+          setTimeout(() => {
+            isAnimating = false;
+            demoBtn.disabled = false;
+            demoBtn.textContent = 'Sync Complete';
+            
+            // Revert scanline transitions
+            scanLine.style.transition = 'none';
+          }, 2400);
+
+        });
+      }
+
+    });
+  </script>
+</body>
+</html>
